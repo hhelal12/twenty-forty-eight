@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:twenty_forty_eight/logic/logic.dart';
+import 'package:twenty_forty_eight/models/tailes.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -11,34 +12,23 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   int score = 0;
   List<int> grid = List.filled(16, 0);
-  final Random random = Random();
 
   @override
   void initState() {
     super.initState();
-    _spawnRandomTile();
-    _spawnRandomTile();
+    spawnRandomTile(grid);
+    spawnRandomTile(grid);
+    spawnRandomTile(grid);
   }
 
-  // Spawn a new tile with 2 in an empty cell
-  void _spawnRandomTile() {
-    List<int> emptyIndices = [];
-    for (int i = 0; i < grid.length; i++) {
-      if (grid[i] == 0) emptyIndices.add(i);
-    }
-    if (emptyIndices.isNotEmpty) {
-      int randomIndex = emptyIndices[random.nextInt(emptyIndices.length)];
-      grid[randomIndex] = 2;
-    }
-  }
-
-  // Reset the game
+  // restating the game
   void _resetGame() {
     setState(() {
       score = 0;
       grid = List.filled(16, 0);
-      _spawnRandomTile();
-      _spawnRandomTile();
+      spawnRandomTile(grid);
+      spawnRandomTile(grid);
+      spawnRandomTile(grid);
     });
   }
 
@@ -54,7 +44,7 @@ class _GamePageState extends State<GamePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🧮 Score + Restart
+            //  Score + Restart
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Row(
@@ -87,16 +77,16 @@ class _GamePageState extends State<GamePage> {
               children: List.generate(16, (index) {
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey[400],
+                    color: getTileColor(grid[index]),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
                     child: Text(
                       grid[index] == 0 ? '' : '${grid[index]}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: getTextColor(grid[index]),
                       ),
                     ),
                   ),
@@ -106,14 +96,14 @@ class _GamePageState extends State<GamePage> {
 
             const SizedBox(height: 30),
 
-            // 🎮 Movement Buttons (dummy for now)
+            // 🎮 Movement Buttons
             Column(
               children: [
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      score++;
-                      _spawnRandomTile(); // temporary: add a new tile
+                      moveUp(grid, score);
+                      spawnRandomTile(grid); 
                     });
                   },
                   child: const Icon(Icons.arrow_upward),
@@ -124,8 +114,8 @@ class _GamePageState extends State<GamePage> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          score++;
-                          _spawnRandomTile();
+                          score = moveLeft(grid, score);
+                          spawnRandomTile(grid);
                         });
                       },
                       child: const Icon(Icons.arrow_back),
@@ -134,8 +124,8 @@ class _GamePageState extends State<GamePage> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          score++;
-                          _spawnRandomTile();
+                          moveRight(grid, score);
+                          spawnRandomTile(grid);
                         });
                       },
                       child: const Icon(Icons.arrow_forward),
@@ -145,8 +135,8 @@ class _GamePageState extends State<GamePage> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      score++;
-                      _spawnRandomTile();
+                      moveDown(grid, score);
+                      spawnRandomTile(grid);
                     });
                   },
                   child: const Icon(Icons.arrow_downward),

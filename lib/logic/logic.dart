@@ -148,3 +148,30 @@ int moveDown(List<int> grid, int score) {
 
   return score;
 }
+
+
+// gameover part
+
+bool hasEmptyCell(List<int> grid) {
+  return grid.contains(0);
+}
+
+bool canMerge(List<int> grid) {
+  for (int rowStart = 0; rowStart < 16; rowStart += 4) {
+    for (int i = 0; i < 3; i++) {
+      if (grid[rowStart + i] == grid[rowStart + i + 1]) return true;
+    }
+  }
+
+  for (int col = 0; col < 4; col++) {
+    for (int i = 0; i < 3; i++) {
+      if (grid[col + i * 4] == grid[col + (i + 1) * 4]) return true;
+    }
+  }
+
+  return false;
+}
+
+bool isGameOver(List<int> grid) {
+  return !hasEmptyCell(grid) && !canMerge(grid);
+}

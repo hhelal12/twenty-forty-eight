@@ -103,7 +103,9 @@ int moveUp(List<int> grid, int score){
     // remove zeros again after merge
     column = column.where((n) => n != 0).toList();
 
-    while (column.length < 4) column.add(0);
+    while (column.length < 4) {
+      column.add(0);
+    }
 
     // put column back into grid
     grid[col] = column[0];
@@ -137,7 +139,9 @@ int moveDown(List<int> grid, int score) {
 
     column = column.where((n) => n != 0).toList();
 
-    while (column.length < 4) column.add(0);
+    while (column.length < 4) {
+      column.add(0);
+    }
    
     column = column.reversed.toList();
     grid[col] = column[0];

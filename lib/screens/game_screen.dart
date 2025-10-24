@@ -99,21 +99,54 @@ class _GamePageState extends State<GamePage> {
           break;
       }
 
-      //  update existing tiles positions and merge 
-      List<Tile> newTiles = [];
+      // --- NEW: try to update existing tiles positions instead of recreating them
+      // Greedy nearest-match: for each occupied target cell, try to find the closest old tile with the same value.
+      List<Tile> oldTiles = List.from(tiles); // copy of previous tiles
+      List<bool> usedOld = List<bool>.filled(oldTiles.length, false);
+      List<Tile> updatedTiles = [];
+
       for (int i = 0; i < 16; i++) {
         if (grid[i] != 0) {
           final r = i ~/ 4;
           final c = i % 4;
-          newTiles.add(Tile(
-            id: DateTime.now().microsecondsSinceEpoch + i,
-            value: grid[i],
-            row: r,
-            col: c,
-          ));
+          int targetValue = grid[i];
+
+          // find closest unused old tile with same value
+          int bestIndex = -1;
+          int bestDist = 1 << 30;
+          for (int j = 0; j < oldTiles.length; j++) {
+            if (usedOld[j]) continue;
+            final ot = oldTiles[j];
+            if (ot.value != targetValue) continue;
+            final dist = (ot.row - r).abs() + (ot.col - c).abs();
+            if (dist < bestDist) {
+              bestDist = dist;
+              bestIndex = j;
+            }
+          }
+
+          if (bestIndex != -1) {
+            // reuse existing tile: update its coords and mark used
+            Tile reused = oldTiles[bestIndex];
+            reused.row = r;
+            reused.col = c;
+            usedOld[bestIndex] = true;
+            updatedTiles.add(reused);
+          } else {
+            // no matching previous tile — probably result of merge or brand-new value
+            // create a new tile (it will appear at target position)
+            updatedTiles.add(Tile(
+              id: DateTime.now().microsecondsSinceEpoch + i,
+              value: targetValue,
+              row: r,
+              col: c,
+            ));
+          }
         }
       }
-      tiles = newTiles;
+
+      // tiles that were not reused likely merged into others — they can be dropped
+      tiles = updatedTiles;
 
       _spawnRandomTile();
 
